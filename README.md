@@ -15,6 +15,8 @@ Clifford.js - Universal Algebra for javascript
        Multiplication {
          left: NullBaseVector { name: '∞' },
          right: NullBaseVector { name: 'ο' } } }
+    > expr.toString()
+    1+∞*ο
     > expr = expr.compute()
     Int { numerator: 0, denominator: 1 }
     > expr.toString()
