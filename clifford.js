@@ -1,8 +1,5 @@
 "use strict";
 
-function gcd(a, b) { return b === 0 ? a : gcd(b, a % b); }
-function lcm(a, b) { return (a*b) / gcd(a, b); }
-
 let SymbolTable = {};
 class MultiVector {
     constructor(name) {
@@ -117,9 +114,10 @@ class Fraction extends Real {
         this.numerator = numerator;
         this.denominator = denominator;
     }
-    get valueOf() { return this.numerator / this.denominator }
+    valueOf() { return this.numerator / this.denominator }
     get nude() { return [this.numerator, this.denominator]; }
     simplify() {
+        function gcd(a, b) { return b === 0 ? a : gcd(b, a % b); }
         let $gcd = gcd(...this.nude);
         if (this.denominator == $gcd) {
             return new Int(this.numerator / $gcd);
@@ -134,8 +132,8 @@ class Int extends Fraction {
     toString() { return this.numerator.toString(); }
     simplify() { return this; }
 }
-let ZERO     = new Int(0),
-    ONE      = new Int(1),
+let ZERO      = new Int(0),
+    ONE       = new Int(1),
     MINUS_ONE = new Int(-1);
 
 class BinaryInternalOperator extends MultiVector {
@@ -271,10 +269,10 @@ class OuterProduct extends BinaryInternalOperator {
             ) {
                 return new Multiplication(
                     MINUS_ONE,
-                    new BasisBlade([this.right, this.left])
+                    new BasisBlade([right, left])
                 );
             } else {
-                return new BasisBlade([this.left, this.right]);
+                return new BasisBlade([left, right]);
             }
         }
         return super.simplify();
@@ -286,26 +284,27 @@ class Multiplication extends BinaryInternalOperator {
         return [ Addition, Subtraction ];
     }
     simplify() {
-        if (this.left == 1) {
-            return this.right;
-        } else if (this.left == 0) {
-            return ZERO;
-        } else if (
-            this.left instanceof BaseVector &&
-            this.right instanceof BaseVector
+        let left  = this.left,
+            right = this.right;
+        if      (left  == 1) { return right; }
+        else if (right == 1) { return left; }
+        else if (left  == 0) { return ZERO; }
+        else if (
+            left  instanceof BaseVector &&
+            right instanceof BaseVector
         ) {
-            let left  = this.left,
-                right = this.right;
-            return left.index == right.index ?
-                new InnerProduct(left, right) :
-                new OuterProduct(left, right);
+            return new (
+                left.index == right.index ?
+                InnerProduct :
+                OuterProduct
+            )(left, right);
         } else if (
-            this.left instanceof Fraction &&
-            this.right instanceof Fraction
+            left  instanceof Fraction &&
+            right instanceof Fraction
         ) {
             let [a, b, c, d] = [
-                ...this.left.nude,
-                ...this.right.nude
+                ... left.nude,
+                ...right.nude
             ];
             return new Fraction(a*c, b*d);
         } else {
