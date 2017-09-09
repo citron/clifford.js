@@ -1,0 +1,26 @@
+{
+    "name": "clifford.js",
+    "version": "0.0.1",
+    "description": "geometric algebra library",
+    "main": "clifford.js",
+    "scripts": {},
+    "repository": {
+        "type": "git",
+        "url":  "http://github.com/grondilu/clifford.js"
+    },
+    "files": [
+        "clifford.js"
+    ],
+    "devDependencies": {
+    },
+    "keywords": [
+        "clifford",
+        "algebra",
+        "geometric-algebra",
+        "formal-calculus"
+    ],
+    "author":   "Lucien Grondin",
+    "license":  "MIT",
+    "homepage": "http://grondilu.github.io/clifford.html"
+}
+
