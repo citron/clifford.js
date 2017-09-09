@@ -55,6 +55,25 @@ let no = new NullBaseVector('ο'),
 SymbolTable.no = no;
 SymbolTable.ni = ni;
 
+class BasisBlade extends MultiVector {
+    constructor(indices, name) {
+        if (
+            indices
+            .map(x => x instanceof BaseVector)
+            .some(x => !x)
+        ) {
+            throw new TypeError();
+        } else {
+            super(name)
+            this.indices = indices;
+        }
+    }
+    toString() {
+        return this.indices
+            .map(x => x.toString())
+        .join("∧");
+    }
+}
 class Vector3D extends Vector {
     constructor(x, y, z, name) {
         super(name);
@@ -117,7 +136,7 @@ class Int extends Fraction {
 }
 let ZERO     = new Int(0),
     ONE      = new Int(1),
-    MINUSONE = new Int(-1);
+    MINUS_ONE = new Int(-1);
 
 class BinaryInternalOperator extends MultiVector {
     // Those two class methods are used
@@ -251,9 +270,11 @@ class OuterProduct extends BinaryInternalOperator {
                 left.normalIndex > right.normalIndex
             ) {
                 return new Multiplication(
-                    MINUSONE,
-                    new OuterProduct(this.right, this.left)
+                    MINUS_ONE,
+                    new BasisBlade([this.right, this.left])
                 );
+            } else {
+                return new BasisBlade([this.left, this.right]);
             }
         }
         return super.simplify();
@@ -640,7 +661,7 @@ Zs = [\\u0020\\u00A0\\u1680\\u2000-\\u200A\\u202F\\u205F\\u3000]
 module.exports = {
     parser: require('pegjs').generate(grammar),
     SymbolTable,
-    ni, no, ZERO, ONE, MINUSONE,
+    ni, no, ZERO, ONE, MINUS_ONE,
     MultiVector, Vector, Vector3D,
     BaseVector, EuclideanBaseVector, AntiEuclideanBaseVector,
     ConformalPoint, Real, Fraction, Int, 
