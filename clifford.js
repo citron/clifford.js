@@ -52,6 +52,8 @@ class NullBaseVector extends BaseVector {
 }
 let no = new NullBaseVector('ο'),
     ni = new NullBaseVector('∞');
+SymbolTable.no = no;
+SymbolTable.ni = ni;
 
 class Vector3D extends Vector {
     constructor(x, y, z, name) {
@@ -238,13 +240,18 @@ class OuterProduct extends BinaryInternalOperator {
         ];
     }
     simplify() {
-        if (this.left instanceof BaseVector &&
-            this.right instanceof BaseVector) {
+        let left  = this.left, right = this.right;
+        if (left === right) {
+            return ZERO;
+        } else if (
+            left  instanceof BaseVector &&
+            right instanceof BaseVector
+        ) {
             if (
-                this.left.normalIndex > this.right.normalIndex
+                left.normalIndex > right.normalIndex
             ) {
                 return new Multiplication(
-                    new Int(-1),
+                    MINUSONE,
                     new OuterProduct(this.right, this.left)
                 );
             }
@@ -457,7 +464,6 @@ exponential
 
 primary
     = LiteralNumber
-    / BaseVector
     / Identifier
     / "(" additive:AdditiveExpression ")" { return additive; }
 
@@ -465,18 +471,20 @@ primary
 
 BaseVector = EuclideanBaseVector
            / AntiEuclideanBaseVector
-           / NilpotentBaseVector { return $clifford[text()]; }
+           / NullBaseVector { return $clifford.SymbolTable[text()]; }
 
-NilpotentBaseVector = "no" / "ni"
+NullBaseVector = "no" / "ni"
 
 EuclideanBaseVector
     = "e" index:BaseVectorIndex {
-        return new $clifford.EuclideanBaseVector(index, text());
+        return $clifford.SymbolTable[text()] ||
+        new $clifford.EuclideanBaseVector(index, text());
     }
 
 AntiEuclideanBaseVector
     = "ē" index:BaseVectorIndex {
-        return new $clifford.AntiEuclideanBaseVector(index, text());
+        return $clifford.SymbolTable[text()] ||
+        new $clifford.AntiEuclideanBaseVector(index, text());
     }
 
 BaseVectorIndex
@@ -529,7 +537,8 @@ plus = "+"
 zero = "0"
 
 Identifier
-  = head:IdentifierStart tail:IdentifierPart* {
+   = BaseVector
+   / head:IdentifierStart tail:IdentifierPart* {
         let name  = head + tail.join("");
 
         return $clifford.SymbolTable[name] ||
