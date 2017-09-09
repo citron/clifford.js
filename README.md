@@ -6,7 +6,7 @@ Clifford.js - Universal Algebra for javascript
     $ node
     > let $clifford = require("./clifford"),
        parser    = $clifford.parser,
-       parse     = str => .parser.parse(str),
+       parse     = str => parser.parse(str),
        expr      = parse("1 + ni∧no");
     > expr
     Addition {
