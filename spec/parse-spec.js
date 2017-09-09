@@ -24,9 +24,6 @@ describe("Parsing a negative literal integer", function () {
         it("should return an instance of class Multiplication",
             () => expect(parsed instanceof $clifford.Multiplication).toBe(true)
         );
-        it("should give the initial value back when computed",
-            () => expect(parsed.compute().valueOf()).toEqual(i)
-        );
     }
 });
 
@@ -39,11 +36,57 @@ describe("Parsing a fraction", function () {
             it("should return an instance of class Division",
                 () => expect(parsed instanceof $clifford.Division).toBe(true)
             );
-            it("should return a fraction once computed",
-                () => expect(
-                    parsed.compute() instanceof $clifford.Fraction
-                ).toBe(true)
-            );
         }
     }
+});
+
+describe("Addition", function () {
+    it("should have lower precedence than multiplication",
+        () =>
+        expect(parse("a+b*c").toString())
+        .toEqual(parse("a+(b*c)").toString())
+    );
+    it("should have lower precedence than inner product",
+        () =>
+        expect(parse("a+b·c").toString())
+        .toEqual(parse("a+(b·c)").toString())
+    );
+    it("should have lower precedence than outer product",
+        () =>
+        expect(parse("a+b∧c").toString())
+        .toEqual(parse("a+(b∧c)").toString())
+    );
+    it("should have lower precedence than exponentiation",
+        () =>
+        expect(parse("a+b**c").toString())
+        .toEqual(parse("a+(b**c)").toString())
+    );
+    it("should have lower precedence than negation",
+        () =>
+        expect(parse("a+b+-c").toString())
+        .toEqual(parse("a+b+(-c)").toString())
+    );
+});
+
+describe("Multiplication", function () {
+    it("should have lower precedence than inner product",
+        () =>
+        expect(parse("a*b·c").toString())
+        .toEqual(parse("a*(b·c)").toString())
+    );
+    it("should have lower precedence than outer product",
+        () =>
+        expect(parse("a*b∧c").toString())
+        .toEqual(parse("a*(b∧c)").toString())
+    );
+    it("should have lower precedence than exponentiation",
+        () =>
+        expect(parse("a*b**c").toString())
+        .toEqual(parse("a*(b**c)").toString())
+    );
+    it("should have lower precedence than negation",
+        () =>
+        expect(parse("a*b*-c").toString())
+        .toEqual(parse("a*b*(-c)").toString())
+    );
 });
